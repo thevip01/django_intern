@@ -3,6 +3,21 @@ from django.http import HttpResponse
 
 from .myForm import JobAppForm
 from .models import JobDetailTable
+from .myForm2 import UserRegistrationForm
+from django.views.generic.edit import FormView
+
+
+def UserRegistration(request):
+    content = {}
+    content['form'] = UserRegistrationForm()
+    return render(request, 'register.html', content)
+
+
+def userRegPost(request, FormView):
+    template_name = "contact.html"
+    form_class = UserRegistrationForm
+    success_url = "/register/"
+    # FormResponse = UserRegistrationForm(request.POST or None)
 
 
 def home(request):

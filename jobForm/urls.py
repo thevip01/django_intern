@@ -5,6 +5,8 @@ from . import views
 app_name = 'JobForm'
 urlpatterns = [
     path('', views.home, name='dbHome'),
+    path('register/', views.UserRegistration, name='register'),
+    path('registerPost/', views.userRegPost, name='registerPost'),
     path('JobApp/', views.JobForm, name='JobApp'),
     path('users/', views.JobAppDetail, name='userData'),
     path('delete/<int:id>', views.delete, name='delete'),
