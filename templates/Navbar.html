@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">
+    <img
+      src="https://seeklogo.com/images/D/django-logo-4C5ECF7036-seeklogo.com.png"
+      width="30"
+      height="30"
+      class="d-inline-block align-top"
+      alt=""
+      />
+    Django App
+  </a>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path == '/' %} active {%endif%}"
+          href="/">Home</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path == '/form/' %} active {%endif%}"
+          href="{% if request.path != '/form/' %} /form/ {%endif%}">Form</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path == '/JobApp/' %} active {%endif%}"
+          href="{% if request.path != '/JobApp/' %} /JobApp/ {%endif%}">JobApp</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path == '/users/' %} active {%endif%}"
+          href="{% if request.path != '/users/' %} /users/ {%endif%}">AllData</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<style>
+   .navbar {
+        padding: 0.5rem 1rem;
+        font-family: Arial;
+        font-weight: 400;
+      }
+</style>

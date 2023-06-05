@@ -1,0 +1,4 @@
+{"name":"Vipul","email": "thevip@gmail.com","remote":"no"}
+{"name":"Yax","email": "yax@gmail.com","remote":"no"}
+{"name":"user2","email": "example2@gmail.com","remote":"yes"}
+{"name":"Vipul","email": "superadmin@mail.com","remote":"yes"}

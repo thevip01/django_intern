@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    {%include 'Navbar.html' %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Remote Work</th>
+
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for value in Data %}
+        <tr>
+          <th scope="row">{{forloop.counter}}</th>
+          <td>{{value.name}}</td>
+          <td>{{value.email}}</td>
+          <td>{{value.remote}}</td>
+          <td>
+            <a
+              class="btn btn-danger"
+              href="{% url 'form:delete' forloop.counter %}"
+              >Delete</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
