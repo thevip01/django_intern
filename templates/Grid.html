@@ -1,0 +1,140 @@
+{% extends 'includes/baseFile.html' %}
+{% load static %}
+{% block title %} All Applicant{% endblock %}
+
+{% block style %}
+    <style>
+        th, .page-link{
+            cursor: pointer;
+            background-color: transparent;
+        }
+    </style>
+{% endblock %}
+
+{% block heading %} Registered Users {% endblock %}
+{% block container %}
+    <div class="container">
+          
+        <div class="form-outline mb-4">
+            <select name="searchBy" id="searchBy" class="col-sm form-control-lg" onchange="typecheck(this.value)">
+                <option value="id">Id</option>
+                <option value="name">Name</option>
+                <option value="designation">Designation</option>
+            </select>
+            <input type="number" class="form-control-lg col-sm" id="datatable-search-input">
+            <i class="btn btn-warning" for="datatable-search-input" onclick="search()">Search</i>
+        </div>
+        <div id="searchTableDiv">
+            <table class="table table-responsive table-info rounded" id="datatable" hidden>
+                <h3 id="searchresult" hidden>Search Result</h3>
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" name="id">Id</th>
+                    <th scope="col" name="name">Name</th>
+                    <th scope="col" name="phoneNo">Phone</th>
+                    <th scope="col" name="email">Email</th>
+                    <th scope="col" name="designation">Designation</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <h3>Data Table</h3>
+        <table class="table table-info table-responsive ">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col" class="th" name="id"><a href="{% url 'JobApp:sort' 'id' %}"  class="text-dark text-decoration-none">Id {% if isSorted == '-id'%} &#8650;{% endif %}</a></th>
+                <th scope="col" class="th" name="name"><a href="{% url 'JobApp:sort' 'name' %}"  class="text-dark text-decoration-none">Name {% if isSorted == 'firstname'%} &#8648;{% elif isSorted == '-firstname'%} &#8650;{% endif %}</a></th>
+                <th scope="col" class="th" name="phoneNo"><a href="{% url 'JobApp:sort' 'phoneNo' %}" class="text-dark text-decoration-none">Phone {% if isSorted == 'phone'%} &#8648;{% elif isSorted == '-phone'%} &#8650;{% endif %}</a></th>
+                <th scope="col" class="th" name="email"><a href="{% url 'JobApp:sort' 'email' %}" class="text-dark text-decoration-none">Email{% if isSorted == 'email'%} &#8648;{% elif isSorted == '-email'%} &#8650;{% endif %}</a></th>
+                <th scope="col" class="th" name="designation"><a href="{% url 'JobApp:sort' 'designation' %}" class="text-dark text-decoration-none">Designation {% if isSorted == 'designation'%} &#8648;{% elif isSorted == '-designation'%} &#8650;{% endif %}</a></th>
+                <th scope="col">#</th>
+                <th scope="col">#</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for row in context %}
+                <tr>
+                    <td class="fw-bold">{{row.id}}</td>
+                    <td>{{row.name}}</td>
+                    <td>{{row.phoneNo}}</td>
+                    <td>{{row.email}}</td>
+                    <td>{{row.designation}}</td>
+                    <td><a href="{% url 'JobApp:edit' row.id %}" class="btn btn-info text-dark text-decoration-none">Edit</a></td>
+                    <td><a  href="{% url 'JobApp:delete' row.id %}" class="btn btn-danger text-dark text-decoration-none">Delete</a></td>
+                  </tr>
+                  {% endfor %}
+            </tbody>
+        </table>
+        
+        <nav class="flex-column w-100">
+            <ul class="pagination pagination">
+                {% for i in count %}
+                    {% if i != 0 %}
+                        <li class="page-item" id="page{{i}}">
+                            <a class="page-link" href="{{i}}">{{i}}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+          </nav>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        document.getElementById('page'+(String(document.location.href).split("/").splice(-1)[0])).classList.add('active')
+        
+        function typecheck(value) {
+            document.getElementById('searchresult').hidden = true
+            let datatable = document.getElementById('datatable')
+            datatable.hidden = true
+            oldData = datatable.getElementsByTagName('tr')
+            for(let a=1; a< oldData.length;a++){
+                oldData[a].remove()
+            }
+            if(value != 'id'){
+                document.getElementById('datatable-search-input').type = 'text'
+                return 0
+            }
+            document.getElementById('datatable-search-input').type = 'number'
+        }
+
+        async function search() {
+            searchBy = document.getElementById('searchBy').value
+            searchval = document.getElementById('datatable-search-input').value
+
+            let response = await fetch(`http://127.0.0.1:8000/job/search/${searchBy}/${searchval}`)
+            let data = await response.json()
+            let searchData = data.searchData
+            if(searchData.length > 0){
+                document.getElementById('searchresult').hidden = false
+                let datatable = document.getElementById('datatable')
+                datatable.hidden = false
+                oldData = datatable.getElementsByTagName('tr')
+                for(let a=1; a< oldData.length;a++){
+                    oldData[a].remove()
+                }
+                searchData.forEach(item => {
+                    let myNewTr = document.createElement('tr')
+                    myNewTr.className = 'table-primary'
+                    (Object.values(item)).map(i=>{
+                        let myNewTd = document.createElement('td') 
+                        myNewTd.innerHTML = i;
+                        myNewTr.appendChild(myNewTd)
+                    })
+                    datatable.appendChild(myNewTr)
+                });
+            }
+            else{
+                document.getElementById('searchresult').hidden = false
+                searchTableDiv = document.getElementById('searchTableDiv')
+                h4 = document.createElement('h4')
+                h4.innerHTML = "No Data Found"
+                h4.classList.add('w-100')
+                h4.classList.add('text-center')
+                searchTableDiv.appendChild(h4)
+            }
+        }
+    </script>
+{% endblock %}

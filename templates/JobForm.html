@@ -1,0 +1,275 @@
+{% extends 'includes/baseFile.html' %}
+{% load static %}
+{% block style %}
+<style>
+    .formLong label{
+        max-width: 83px;
+        display: inline-block;
+        word-wrap: break-word;
+    }
+</style>
+{% endblock %}
+{% block title %} Job Application Form {% endblock %}
+{% block heading %} Job Application Form {% endblock %}
+{% block container %} 
+<form class="container-fluid" method="POST" action="{%url 'JobApp:Apply' %}">
+    {% csrf_token %}
+    <input type="number" value="{{id}}" id="nonematter" hidden>
+    <div class="panel panel-default">
+        <div class="panel-heading" id="FieldSetTitle">Basic Detail</div>
+        <div class="panel-body table" id="DataForm{{forloop.counter}}">
+            <div class="table">
+                <div class="row">
+                {%for element in form.0%}
+                    <label class="col-4 mx-1" for="{{element.name}}">{{element.label}} : </label>
+                    {%if element.name == 'city' %}
+                        <select class="col-sm form-control mx-1" name="{{element.name}}" id="id_city">
+                            <option value="">---------</option>
+                        </select>
+                    {% elif element.html_name == 'dob' %}
+                        <input type="date" class="col-sm form-control mx-1" name="{{element.name}}" id="id_dob">
+                    {%else%}
+                        {{element}}
+                    {%endif%}
+                    {{ element.errors }} 
+                {%endfor%}
+                </div>
+            </div>
+        </div>
+    </div> {# BASIC DETAIL #}
+    <div class="panel panel-default">
+        <div class="panel-heading">Education Detail</div>
+        <div class="panel-body table" id="EducationForm">
+            <div class="table">
+                {% for element in form.1 %}
+                    <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
+                    {%if element.name == 'passingyear' %}
+                        <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_{{element.name}}">
+                    {% else %}
+                        {{element}}
+                    {% endif %}
+                {% endfor %}
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'EducationForm')">ADD</li>
+            </div>
+        </div>
+    </div> {# EDUCATION DETAIL #}
+    <div class="panel panel-default">
+        <div class="panel-heading">Experience Detail</div>
+        <div class="panel-body table" id="ExperienceForm">
+            <div class="table">
+                {%for element in form.2%}
+                    <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
+                    {%if element.html_name == 'from_date' or element.html_name == 'to_date' %}
+                        <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_dob">
+                    {%else%}
+                        {{element}}
+                    {%endif%}
+                {%endfor%}
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'ExperienceForm')">ADD</li>
+            </div>
+        </div>
+    </div> {# EXPERIENCE DETAIL #}
+    <div class="row justify-content-between" id="Languages">
+        <div class="panel-default panel p-0" style="width: 45%;">
+            <div class="panel-heading">Known Language</div>
+            <div class="panel-body table" id="ExperienceForm">
+                <div class="table">
+                    <div class="row">
+                    {% for element in form.3 %}
+                        <div class="col-5 my-10">
+                            <label class="form-label" for="{{element}}">{{element}}</label>
+                            <input type="checkbox" name="language" value="{{element.id}}" id="{{ forloop.counter }}">
+                        </div>
+                        <div class="col-5">
+                            <input type="checkbox" class="mx-2" value="read_{{element.id}}" name="expertise" id="read_{{element.id}}">Read
+                            <input type="checkbox" class="mx-2" value="write_{{element.id}}" name="expertise" id="write_{{element.id}}">Write
+                            <input type="checkbox" class="mx-2" value="speak_{{element.id}}" name="expertise" id="speak_{{element.id}}">Speak
+                        </div>
+                    {%endfor%}
+                    </div>
+                </div>
+            </div>                
+        </div> 
+        <div class="panel-default panel p-0" style="width: 45%;">
+            <div class="panel-heading">Known Tech Language</div>
+            <div class="panel-body table" id="ExperienceForm">
+                <div class="table">
+                    <div class="row">
+                    {% for element in form.4 %}
+                    <div class="col-5 my-10">
+                        <label class="form-label" for="{{element}}">{{element}}</label>
+                        <input type="checkbox" class="" name="techLanguage" value="{{element.id}}" id="{{ forloop.counter }}">
+                    </div>
+                    <div class="col-5">
+                        <input type="radio" class="mx-2" name="{{element.id}}" value="Beginner" id="Beginner_{{element.id}}">Beginner
+                        <input type="radio" class="mx-2" name="{{element.id}}" value="Mediator" id="Mediator_{{element.id}}">Mediator
+                        <input type="radio" class="mx-2" name="{{element.id}}" value="Expert" id="Expert_{{element.id}}">Expert
+                    </div>
+                    {%endfor%}
+                    </div>
+                </div>
+            </div>                
+        </div> 
+    </div> {# LANGUAGES DETAIL #}
+    <div class="panel panel-default">
+        <div class="panel-heading">Reference Detail</div>
+        <div class="panel-body table" id="ReferenceForm">
+                <div class="table">
+                {{form.5}}
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'ReferenceForm')">ADD</li>
+            </div>
+        </div>
+    </div> {# REFERENCE DETAIL #}
+    <div class="panel panel-default">
+        <div class="panel-heading">Preference Detail</div>
+        <div class="panel-body table">
+            <div class="table formLong">
+                {{form.6}}
+            </div>
+        </div>
+    </div> {# PREFERENCE DETAIL #}
+
+    <div class="col mx-auto" style="width: 100px;">
+        <button type="submit"class="btn btn-primary position-relative">Apply</button>
+    </div>
+</form>
+{% endblock %}
+{% block script %}
+    <script>
+        getFunction()
+        async function getFunction(){
+            id = document.getElementById('nonematter').value
+            if(id != ''){
+                let response = await fetch('http://127.0.0.1:8000/job/getData/'+id)
+                let DataSet = await response.json()
+                let Data = DataSet['Data']
+                let fields = ['BasicData','EducationData','ExperienceData','LanguageData','TechLanguageData','ReferenceData','PreferenceData']
+                for(let i=0; i<Data.length; i++){
+                    Object.keys(Data[i][fields[i]]).forEach(item => {
+                        console.log(item);
+                        try{
+                            if(item == 'state_id'){
+                                document.getElementById('id_state').value  = Data[i][fields[i]][item]
+                            }
+                            else if(item == 'city'){
+                                getcity(Data[i][fields[i]][item])
+                                
+                            }
+                            else{
+                                document.getElementById(`id_${item}`).value = Data[i][fields[i]][item]
+                            }
+                        }
+                        catch{}
+                    });
+                }
+            }
+
+        }
+    </script>
+    <script>
+        var c = document.getElementById('Languages').getElementsByTagName('input');
+        for (var i = 0; i < c.length; i++) {
+            if (c[i].type == 'checkbox' || 'radio') {
+                c[i].addEventListener('click', checkboxChecked)
+                c[i].click();
+                c[i].click();
+            }
+        }
+        function checkboxChecked() {
+            element = this
+            if (element.checked == true) {
+                try{
+                    document.getElementById(`Beginner_${element.value}`).disabled = false;
+                    document.getElementById(`Mediator_${element.value}`).disabled = false;
+                    document.getElementById(`Expert_${element.value}`).disabled = false;
+                }
+                catch{}
+                try{
+                    document.getElementById(`read_${element.value}`).disabled = false;
+                    document.getElementById(`write_${element.value}`).disabled = false;
+                    document.getElementById(`speak_${element.value}`).disabled = false;
+                }
+                catch{}
+            }
+            else {
+                try{
+                    document.getElementById(`Beginner_${element.value}`).disabled = true;
+                    document.getElementById(`Mediator_${element.value}`).disabled = true;
+                    document.getElementById(`Expert_${element.value}`).disabled = true;
+
+                    document.getElementById(`Beginner_${element.value}`).checked = false; 
+                    document.getElementById(`Mediator_${element.value}`).checked = false;
+                    document.getElementById(`Expert_${element.value}`).checked = false;
+                }
+                catch{}
+                try{
+                    document.getElementById(`read_${element.value}`).disabled = true;
+                    document.getElementById(`write_${element.value}`).disabled = true;
+                    document.getElementById(`speak_${element.value}`).disabled = true;
+
+
+                    document.getElementById(`read_${element.value}`).checked = false;
+                    document.getElementById(`write_${element.value}`).checked = false;
+                    document.getElementById(`speak_${element.value}`).checked = false;
+                }
+                catch{}
+            }
+        }
+        let stateElement = document.getElementById('id_state')
+        stateElement.addEventListener('change', getcity)
+        let citySelect = document.getElementById('id_city')
+
+
+        async function getcity(value1) {
+            const state = stateElement.value;
+            if (state != '') {
+                fetch(`http://127.0.0.1:8000/job/getcity/${state}`, {
+                    method: 'get'
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        let cities = data.cities;
+                        citySelect.innerHTML = '<option>---------</option>'
+                        for (let i in cities) {
+                            option = document.createElement('option')
+                            option.value = cities[i][2]
+                            option.id = cities[i][0]
+                            option.innerHTML = cities[i][2]
+                            citySelect.appendChild(option)
+                        }
+                        if(typeof(value1) !== 'object'){
+                            document.getElementById('id_city').value = value1
+                        }
+                    })
+                    
+            }
+            else {
+                citySelect.innerHTML = '<option>---------</option>'
+            }
+        }
+
+        function AddForm(btn, FormID) {
+            let btn_id = btn.id;
+            let myform = document.getElementById(FormID)
+            let node = myform.querySelector('.table')
+            const clone = node.cloneNode(true);
+            let Removebtn = clone.querySelector('li');
+            clone.id = 'edu' + (Number(btn_id) + 1)
+            Removebtn.id = Number(btn_id) + 1
+            Removebtn.innerHTML = "Remove";
+            Removebtn.setAttribute("onclick", `RemoveForm(this.id, ${FormID})`)
+            myform.appendChild(clone);
+            let input1 = clone.getElementsByTagName("input");
+            for (let i = 0; i < input1.length; i++) {
+                input1[i].value = "";
+            }
+            btn.id = Number(btn.id) + 1
+
+        }
+        function RemoveForm(btn_id, FormID) {
+            education = document.getElementById(FormID)
+            node = document.getElementById(`edu${btn_id}`)
+            node.remove()
+        }
+    </script>
+{% endblock %}

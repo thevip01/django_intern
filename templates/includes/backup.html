@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <title>Job Application Form</title>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mx-auto" style="width: 290px;">Job Application Form</h2>
+        <form class="container-fluid" method="POST" action="{%url 'JobApp:Apply' %}">
+            {#action="{% url 'JobFormApp:applyForm'%}" method="POST">#}
+            {% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-heading" id="FieldSetTitle">Basic Detail</div>
+                <div class="panel-body table" id="DataForm{{forloop.counter}}">
+                    <div class="table">
+                        <div class="row">
+                        {%for element in form.0%}
+                            <label class="col-3 mx-5" for="{{element.name}}">{{element.label}} : </label>
+                            {%if element.name == 'city' %}
+                                <select class="col form-control my-1 mx-5" name="{{element.name}}" id="id_city">
+                                    <option value="">---------</option>
+                                </select>
+                            {% elif element.html_name == 'dob' %}
+                                <input type="date" class="col form-control my-1 mx-5" name="{{element.name}}" id="id_dob">
+                            {%else%}
+                                {{element}}
+                            {%endif%}
+                            {{ element.errors }} 
+                        {%endfor%}
+                        </div>
+                    </div>
+                </div>
+            </div> {# BASIC DETAIL #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Education Detail</div>
+                <div class="panel-body table" id="DataForm2">
+                    <div class="table">
+                        {{form.1}}
+                        <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddEducationForm(this)">ADD</li>
+                    </div>
+                </div>
+            </div> {# EDUCATION DETAIL #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Experience Detail</div>
+                <div class="panel-body table">
+                    <div class="table">
+                        {%for element in form.2%}
+                            <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
+                            {%if element.html_name == 'from_date' or element.html_name == 'to_date' %}
+                                <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_dob">
+                            {%else%}
+                                {{element}}
+                            {%endif%}
+                        {%endfor%}
+                        <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddExperiencneForm(this)">ADD</li>
+                    </div>
+                </div>
+            </div> {# EXPERIENCE DETAIL #}
+            <div class="row justify-content-between">
+                <div class="panel-default panel p-0" style="width: 45%;">
+                    <div class="panel-heading">Language You Know</div>
+                    <div class="panel-body table" id="ExperienceForm">
+                        <div class="table">
+                            {{form.3}}
+                        </div>
+                    </div>                
+                </div>
+                
+                <!-- <div class="panel-default panel p-0" style="width: 45%;">
+                    <div class="panel-heading">Technologies You Know</div>
+                    <div class="panel-body table">
+                        <div class="table">
+                            {{form.4}}
+                        </div>
+                    </div>                
+                </div> -->
+            </div>
+            <div class="col mx-auto" style="width: 100px;">
+                <button type="submit"class="btn btn-primary position-relative">Apply</button>
+            </div>
+        </form>
+    </div>
+</body>
+<script>
+    let stateElement = document.getElementById('id_state')
+    stateElement.addEventListener('change',getcity)
+    let citySelect = document.getElementById('id_city')
+    async function getcity(){
+        const state = stateElement.value;
+        if(state != ''){
+            fetch(`http://127.0.0.1:8000/job/getcity/${state}`,{
+                method:'get'
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                let cities = data.cities;
+                citySelect.innerHTML ='<option>---------</option>'
+                for(let i in cities){
+                    option = document.createElement('option')
+                    option.value = cities[i][2]
+                    option.id = cities[i][0]
+                    option.innerHTML = cities[i][2]
+                    citySelect.appendChild(option)
+                }
+            })
+        }
+        else{
+            citySelect.innerHTML ='<option>---------</option>'
+        }
+    }
+
+
+    function AddEducationForm(btn){
+        let btn_id = btn.id;
+        let education = document.getElementById('DataForm2') //ExperienceForm
+        let node = education.querySelector('.table')
+        const clone = node.cloneNode(true);
+        let Removebtn = clone.querySelector('li');
+        clone.id = 'edu'+(Number(btn_id)+1)
+        Removebtn.id = Number(btn_id)+1
+        Removebtn.innerHTML = "Remove";
+        Removebtn.setAttribute("onclick", 'RemoveEducationForm(this.id)')
+        // document.getElementById("btn2").remove();
+        education.appendChild(clone); 
+        let input1 = clone.getElementsByTagName("input");
+        for(let i = 0; i < input1.length-1; i++){
+            input1[i].value = "";
+        }
+        btn.id = Number(btn.id)+1
+        
+    }
+    function RemoveEducationForm(btn_id){
+        education = document.getElementById('DataForm2') //ExperienceForm
+        node = document.getElementById(`edu${btn_id}`)
+        node.remove()
+    }
+</script>
+</html>
+
