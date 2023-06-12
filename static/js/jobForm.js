@@ -1,84 +1,183 @@
-var c = document.getElementById('Languages').getElementsByTagName('input');
-for (var i = 0; i < c.length; i++) {
-    if (c[i].type == 'checkbox' || 'radio') {
-        c[i].addEventListener('click', checkboxChecked)
-    }
+inputTags = document.getElementsByTagName('input')
+address = document.getElementById('id_address')
+address.addEventListener('keyup', DataChanged)
+
+for (let j = 2; j < inputTags.length; j++) {
+    inputTags[j].addEventListener('keyup', DataChanged)
 }
-function checkboxChecked() {
-    element = this
-    if (element.checked == true) {
-        element.value = element.name;
 
-        console.log(element.name, document.getElementById(`read_${element.name}`));
-        document.getElementById(`Beginner_${element.name}`).disabled = false;
-        document.getElementById(`Mediator_${element.name}`).disabled = false;
-        document.getElementById(`Expert_${element.name}`).disabled = false;
+selectTags = document.getElementsByTagName('select')
+for (let i = 0; i < selectTags.length; i++) {
+    selectTags[i].addEventListener('change', DataChanged)
+}
 
-        document.getElementById(`read_${element.name}`).disabled = false;
-        document.getElementById(`write_${element.name}`).disabled = false;
-        document.getElementById(`speak_${element.name}`).disabled = false;
+isValid = []
+
+function DataChanged(e) {
+    element = e.target
+    if (element.name == 'address' && element.value.length <= 15) {
+        document.getElementById('address_error').innerHTML = 'address should be at least 15 charachter'
+        isValid.push(element.name)
     }
     else {
-
-        element.value = '';
-
-        document.getElementById(`Beginner_${element.name}`).disabled = true;
-        document.getElementById(`Mediator_${element.name}`).disabled = true;
-        document.getElementById(`Expert_${element.name}`).disabled = true;
-
-        document.getElementById(`read_${element.name}`).disabled = true;
-        document.getElementById(`write_${element.name}`).disabled = true;
-        document.getElementById(`speak_${element.name}`).disabled = true;
+        document.getElementById('address_error').innerHTML = ''
     }
+    if (element.name == 'firstname' || element.name == 'lastname' || element.name == 'designation' || element.name == 'company_name' || element.name == 'ex_designation' || element.name == 'ref_name' || element.name == 'ref_relation') {
+        if ((element.value).length < 3) {
+            document.getElementById(element.name + '_error').innerHTML = 'field requred at least 4 charachter'
+            isValid.push(element.name)
+        } else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+    if (element.name == 'email') {
+        var validRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!element.value.match(validRegex)) {
+            document.getElementById(element.name + '_error').innerHTML = 'enter valid email'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+    if (element.name == 'gender' || element.name == 'relationship_status' || element.name == 'state' || element.name == 'city' || element.name == 'pref_loaction' || element.name == 'pref_department') {
+        if (element.value == '') {
+            document.getElementById(element.name + '_error').innerHTML = element.name + ' field is requred'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = element.name + ''
+        }
+    }
+
+    if (element.name == 'phone' || element.name == 'ref_contact') {
+        if ((element.value).length < 10 || (element.value).length > 10) {
+            document.getElementById(element.name + '_error').innerHTML = 'enter valid phone number with 10 numerical charachter'
+            isValid.push(element.name)
+        } else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+    if (element.name == 'dob') {
+        let date = new Date()
+        a = new Date(element.value)
+        if (date < a) {
+            document.getElementById('dob_error').innerHTML = 'you can\'t select future date'
+            isValid.push(element.name)
+        }
+        else if (new Date('1949-12-31') > a) {
+            document.getElementById('dob_error').innerHTML = 'can\'t select date before 01-01-1950'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById('dob_error').innerHTML = ''
+        }
+
+    }
+    if (element.name == 'zipcode') {
+        if (element.value.length < 5) {
+            document.getElementById(element.name + '_error').innerHTML = 'Enter valid zipcode'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+
+    if (element.name == 'passing_year') {
+        if (element.value < 2000) {
+            document.getElementById(element.name + '_error').innerHTML = 'Can\'t select year before 2000'
+            isValid.push(element.name)
+        }
+        else if (new Date().getFullYear() < element.value) {
+            document.getElementById(element.name + '_error').innerHTML = 'Can\'t select future year'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+    if (element.name == 'percentage') {
+        if (element.value < 0) {
+            document.getElementById(element.name + '_error').innerHTML = 'Percentage can\'t be less than zero'
+            isValid.push(element.name)
+        }
+        else if (element.value > 100) {
+            document.getElementById(element.name + '_error').innerHTML = 'Percentage can\'t be greter than 100'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+
+    if (element.name == 'from_date' || element.name == 'to_date') {
+
+        let from_date = document.getElementById('id_from_date')
+        let to_date = document.getElementById('id_to_date')
+        if (element.value < 2000) {
+            document.getElementById(element.name + '_error').innerHTML = 'Can\'t select year before 2000'
+            isValid.push(element.name)
+        }
+        else if (new Date().getFullYear() < element.value) {
+            document.getElementById(element.name + '_error').innerHTML = 'Can\'t select future year'
+            isValid.push(element.name)
+        }
+        else if (new Date(to_date.value) < new Date(from_date.value)) {
+            document.getElementById(element.name + '_error').innerHTML = 'To date can\'t be less than from date'
+            isValid.push(element.name)
+        }
+        else if (new Date(to_date.value).getTime() === new Date(from_date.value).getTime()) {
+            document.getElementById(element.name + '_error').innerHTML = 'To date can\'t be equal to from date'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+
+    if (element.name == 'notice_period') {
+        if (element.value == 0 || element.value > 10) {
+            document.getElementById(element.name + '_error').innerHTML = `Notice period can\'t be ${element.value == '' ? 'Empty' : element.value + ' months'}`
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+    if (element.name == 'expected_ctc' || element.name == 'current_ctc') {
+        if (element.value == 0) {
+            document.getElementById(element.name + '_error').innerHTML = element.name + ' can\'t be zero'
+            isValid.push(element.name)
+        }
+        else {
+            document.getElementById(element.name + '_error').innerHTML = ''
+        }
+    }
+
 }
-let stateElement = document.getElementById('id_state')
-stateElement.addEventListener('change', getcity)
-let citySelect = document.getElementById('id_city')
-async function getcity() {
-    const state = stateElement.value;
-    if (state != '') {
-        fetch(`http://127.0.0.1:8000/job/getcity/${state}`, {
-            method: 'get'
-        })
-            .then(res => res.json())
-            .then(data => {
-                let cities = data.cities;
-                citySelect.innerHTML = '<option>---------</option>'
-                for (let i in cities) {
-                    option = document.createElement('option')
-                    option.value = cities[i][2]
-                    option.id = cities[i][0]
-                    option.innerHTML = cities[i][2]
-                    citySelect.appendChild(option)
-                }
-            })
-    }
-    else {
-        citySelect.innerHTML = '<option>---------</option>'
-    }
+
+function validateThePage() {
+    isValid = []
+    Object.keys(inputTags).map((j) => {
+        triggerEvent(inputTags[j], 'keyup', 13)
+    });
+    console.log(isValid);
+    return isValid.length == 0 ? true : false
 }
 
-
-function AddForm(btn, FormID) {
-    let btn_id = btn.id;
-    let myform = document.getElementById(FormID)
-    let node = myform.querySelector('.table')
-    const clone = node.cloneNode(true);
-    let Removebtn = clone.querySelector('li');
-    clone.id = 'edu' + (Number(btn_id) + 1)
-    Removebtn.id = Number(btn_id) + 1
-    Removebtn.innerHTML = "Remove";
-    Removebtn.setAttribute("onclick", `RemoveForm(this.id, ${FormID})`)
-    myform.appendChild(clone);
-    let input1 = clone.getElementsByTagName("input");
-    for (let i = 0; i < input1.length; i++) {
-        input1[i].value = "";
+function triggerEvent(el, type, keyCode) {
+    if ('createEvent' in document) {
+        // modern browsers, IE9+
+        var e = document.createEvent('HTMLEvents');
+        e.keyCode = keyCode;
+        e.initEvent(type, false, true);
+        el.dispatchEvent(e);
+    } else {
+        // IE 8
+        var e = document.createEventObject();
+        e.keyCode = keyCode;
+        e.eventType = type;
+        el.fireEvent('on' + e.eventType, e);
     }
-    btn.id = Number(btn.id) + 1
-
-}
-function RemoveForm(btn_id, FormID) {
-    education = document.getElementById(FormID)
-    node = document.getElementById(`edu${btn_id}`)
-    node.remove()
 }

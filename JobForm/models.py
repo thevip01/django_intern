@@ -49,17 +49,17 @@ class BasicDetail(models.Model):
     phone = models.IntegerField("Phone Number",  blank=False, null=False)
     designation = models.CharField(
         "Designation", max_length=80,  blank=False, null=False)
-    address = models.TextField(
-        "Address", max_length=200,  blank=False, null=False)
     gender = models.CharField(choices=GenderChoice,
                               max_length=90,  blank=False, null=False)
-    state = models.ForeignKey(
-        allState, on_delete=models.CASCADE,  blank=False, null=False)
     relationship_status = models.CharField(
         choices=RelationshipChoice, max_length=90, blank=False, null=False)
+    dob = models.DateField('Date Of Birth',  blank=False, null=False)
+    address = models.TextField(
+        "Address", max_length=200,  blank=False, null=False)
+    state = models.ForeignKey(
+        allState, on_delete=models.CASCADE,  blank=False, null=False)
     city = models.CharField("City", max_length=30,
                             blank=False, null=False)
-    dob = models.DateField('Date Of Birth',  blank=False, null=False)
     zipcode = models.IntegerField("Zip Code", blank=False, null=False)
 
     def __str__(self):

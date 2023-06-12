@@ -14,4 +14,6 @@ urlpatterns = [
     path('delete/<int:id>', views.DeleteData, name='delete'),
     path('search/<str:searchBy>/<str:searchVal>',
          views.SearchData, name='search'),
+    path('update/<int:id>', views.update, name='update'),
+
 ]

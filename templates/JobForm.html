@@ -7,14 +7,17 @@
         display: inline-block;
         word-wrap: break-word;
     }
+    #ReferenceForm .table input{
+        margin-right: 90px;
+    }
 </style>
 {% endblock %}
 {% block title %} Job Application Form {% endblock %}
 {% block heading %} Job Application Form {% endblock %}
 {% block container %} 
-<form class="container-fluid" method="POST" action="{%url 'JobApp:Apply' %}">
+<form class="container-fluid" method="POST" onsubmit="return validateThePage()" action="{% if id %} {%url 'JobApp:update' id %} {% else %} {%url 'JobApp:Apply' %} {% endif %}">
     {% csrf_token %}
-    <input type="number" value="{{id}}" id="nonematter" hidden>
+    <input type="number" value="{{id}}" name="nonematter" id="nonematter" hidden>
     <div class="panel panel-default">
         <div class="panel-heading" id="FieldSetTitle">Basic Detail</div>
         <div class="panel-body table" id="DataForm{{forloop.counter}}">
@@ -27,10 +30,11 @@
                             <option value="">---------</option>
                         </select>
                     {% elif element.html_name == 'dob' %}
-                        <input type="date" class="col-sm form-control mx-1" name="{{element.name}}" id="id_dob">
+                        <input type="date" class="col-sm form-control mx-1" name="{{element.name}}" id="id_{{element.name}}">
                     {%else%}
                         {{element}}
                     {%endif%}
+                    <i class="text-danger text-center" id="{{element.name}}_error"></i>
                     {{ element.errors }} 
                 {%endfor%}
                 </div>
@@ -41,15 +45,24 @@
         <div class="panel-heading">Education Detail</div>
         <div class="panel-body table" id="EducationForm">
             <div class="table">
+                <div>
                 {% for element in form.1 %}
+                   <i class="col">
                     <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
                     {%if element.name == 'passingyear' %}
                         <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_{{element.name}}">
                     {% else %}
                         {{element}}
                     {% endif %}
+                </i>
                 {% endfor %}
-                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'EducationForm')">ADD</li>
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this.id, 'EducationForm')">ADD</li>
+            </div>
+            {% for element in form.1 %}
+                <i class="col-sm">
+                    <i class="text-danger text-center px-xxl-5" style="min-width: 1000px; margin-left: 170px;" id="{{element.name}}_error"></i>
+                </i>
+            {%endfor%}
             </div>
         </div>
     </div> {# EDUCATION DETAIL #}
@@ -60,19 +73,24 @@
                 {%for element in form.2%}
                     <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
                     {%if element.html_name == 'from_date' or element.html_name == 'to_date' %}
-                        <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_dob">
+                        <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_{{element.name}}">
                     {%else%}
                         {{element}}
                     {%endif%}
                 {%endfor%}
-                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'ExperienceForm')">ADD</li>
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this.id, 'ExperienceForm')">ADD</li>
             </div>
+            {% for element in form.2 %}
+            <i class="col-sm">
+                <i class="text-danger text-center px-xxl-5" style="min-width: 1000px; margin-left: 170px;" id="{{element.name}}_error"></i>
+            </i>
+            {%endfor%}
         </div>
     </div> {# EXPERIENCE DETAIL #}
     <div class="row justify-content-between" id="Languages">
         <div class="panel-default panel p-0" style="width: 45%;">
             <div class="panel-heading">Known Language</div>
-            <div class="panel-body table" id="ExperienceForm">
+            <div class="panel-body table" id="LanguageForm">
                 <div class="table">
                     <div class="row">
                     {% for element in form.3 %}
@@ -92,7 +110,7 @@
         </div> 
         <div class="panel-default panel p-0" style="width: 45%;">
             <div class="panel-heading">Known Tech Language</div>
-            <div class="panel-body table" id="ExperienceForm">
+            <div class="panel-body table" id="TechlangForm">
                 <div class="table">
                     <div class="row">
                     {% for element in form.4 %}
@@ -116,8 +134,13 @@
         <div class="panel-body table" id="ReferenceForm">
                 <div class="table">
                 {{form.5}}
-                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this, 'ReferenceForm')">ADD</li>
+                <li class="btn btn-info bg-info py-10" name='btn' id="1" onclick="AddForm(this.id, 'ReferenceForm')">ADD</li>
             </div>
+            {% for element in form.5 %}
+            <i class="col-sm">
+                <i class="text-danger text-center px-xxl-5" style="min-width: 500px; margin-left: 10px;" id="{{element.name}}_error"></i>
+            </i>
+            {%endfor%}
         </div>
     </div> {# REFERENCE DETAIL #}
     <div class="panel panel-default">
@@ -126,6 +149,11 @@
             <div class="table formLong">
                 {{form.6}}
             </div>
+            {% for element in form.6 %}
+            <i class="col-sm">
+                <i class="text-danger text-center px-xxl-5" style="min-width: 500px; margin-left: 10px;" id="{{element.name}}_error"></i>
+            </i>
+            {%endfor%}
         </div>
     </div> {# PREFERENCE DETAIL #}
 
@@ -135,18 +163,22 @@
 </form>
 {% endblock %}
 {% block script %}
+    <script src="{% static 'js/jobForm.js' %}"></script>
     <script>
-        getFunction()
+        document.getElementsByTagName('body')[0].addEventListener('onload', getFunction())
         async function getFunction(){
             id = document.getElementById('nonematter').value
             if(id != ''){
                 let response = await fetch('http://127.0.0.1:8000/job/getData/'+id)
                 let DataSet = await response.json()
                 let Data = DataSet['Data']
-                let fields = ['BasicData','EducationData','ExperienceData','LanguageData','TechLanguageData','ReferenceData','PreferenceData']
+                let Languages = DataSet['Language']
+                let MultiData = DataSet['MultipleData']
+                let fields = ['BasicData','PreferenceData']
+                let fieldsMul = ['EducationData','ExperienceData','ReferenceData']
+                let langField = ['LanguageData','TechLanguageData',]
                 for(let i=0; i<Data.length; i++){
                     Object.keys(Data[i][fields[i]]).forEach(item => {
-                        console.log(item);
                         try{
                             if(item == 'state_id'){
                                 document.getElementById('id_state').value  = Data[i][fields[i]][item]
@@ -162,6 +194,71 @@
                         catch{}
                     });
                 }
+                
+                TechLanguageData1 =Languages[1]['TechLanguageData']
+                let techLang = document.getElementsByName('techLanguage')
+                TechLanguageData1.forEach(TechLanguageData => {   
+                    techLang.forEach(element => {
+                        if(element.value == TechLanguageData['techLanguage_id']){
+                            element.checked =true
+                            document.getElementById(TechLanguageData['techLangExpertise']+'_'+TechLanguageData['techLanguage_id']).checked = true
+                        }
+                    });
+                });
+                LanguageData1 =Languages[0]['LanguageData']
+                let lang = document.getElementsByName('language')
+
+                LanguageData1.forEach(LanguageData => {                
+                    lang.forEach(element => {
+                        if(element.value == LanguageData['language_id']){
+                            element.checked =true
+                            expertiseData = String(LanguageData['expertise']).split(',')
+                            for(i=0; i<expertiseData.length-1;i++){
+                                document.getElementById(expertiseData[i]+'_'+LanguageData['language_id']).checked = true
+                            }
+                        }
+                    });
+                });
+                let Education = MultiData[0]['EducationData']
+                for(let i=1; i<Education.length; i++){
+                    AddForm(i, 'EducationForm')
+                }
+                let AllBoard = document.getElementsByName('board_name')
+                let AllPassYear = document.getElementsByName('passing_year')
+                let percentage = document.getElementsByName('percentage')
+                for(let i=0; i<AllBoard.length; i++){
+                    AllBoard[i].value = Education[i]['board_name']
+                    AllPassYear[i].value = Education[i]['passing_year']
+                    percentage[i].value = Education[i]['percentage']
+                }
+
+                let Experience = MultiData[1]['ExperienceData']
+                for(let i=1; i<Experience.length; i++){
+                    AddForm(i, 'ExperienceForm')
+                }
+                let Allcompany = document.getElementsByName('company_name')
+                let ex_designation = document.getElementsByName('ex_designation')
+                let from_date = document.getElementsByName('from_date')
+                let to_date = document.getElementsByName('to_date')
+                for(let i=0; i<Allcompany.length; i++){
+                    Allcompany[i].value = Experience[i]['company_name']
+                    ex_designation[i].value = Experience[i]['ex_designation']
+                    from_date[i].value = Experience[i]['from_date']
+                    to_date[i].value = Experience[i]['to_date']
+                }
+
+                let Reference = MultiData[2]['ReferenceData']
+                for(let i=1; i<Reference.length; i++){
+                    AddForm(i, 'ReferenceForm')
+                }
+                let AllName = document.getElementsByName('ref_name')
+                let Conatcts = document.getElementsByName('ref_contact')
+                let Relations = document.getElementsByName('ref_relation')
+                for(let i=0; i<AllName.length; i++){
+                    AllName[i].value = Reference[i]['ref_name']
+                    Conatcts[i].value = Reference[i]['ref_contact']
+                    Relations[i].value = Reference[i]['ref_relation']
+                }
             }
 
         }
@@ -171,8 +268,10 @@
         for (var i = 0; i < c.length; i++) {
             if (c[i].type == 'checkbox' || 'radio') {
                 c[i].addEventListener('click', checkboxChecked)
-                c[i].click();
-                c[i].click();
+                if(location.href == 'http://127.0.0.1:8000/job/'){
+                    c[i].click();
+                    c[i].click();
+                }
             }
         }
         function checkboxChecked() {
@@ -249,12 +348,12 @@
         }
 
         function AddForm(btn, FormID) {
-            let btn_id = btn.id;
+            let btn_id = btn;
             let myform = document.getElementById(FormID)
             let node = myform.querySelector('.table')
             const clone = node.cloneNode(true);
             let Removebtn = clone.querySelector('li');
-            clone.id = 'edu' + (Number(btn_id) + 1)
+            clone.id = `${FormID}_${Number(btn_id) + 1}`
             Removebtn.id = Number(btn_id) + 1
             Removebtn.innerHTML = "Remove";
             Removebtn.setAttribute("onclick", `RemoveForm(this.id, ${FormID})`)
@@ -267,8 +366,7 @@
 
         }
         function RemoveForm(btn_id, FormID) {
-            education = document.getElementById(FormID)
-            node = document.getElementById(`edu${btn_id}`)
+            node = document.getElementById(`${FormID.id}_${btn_id}`)
             node.remove()
         }
     </script>
