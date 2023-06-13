@@ -15,6 +15,9 @@ isValid = []
 
 function DataChanged(e) {
     element = e.target
+
+    console.log((element.name).substring(0, length(element.name) - 1));
+    debugger
     if (element.name == 'address' && element.value.length <= 15) {
         document.getElementById('address_error').innerHTML = 'address should be at least 15 charachter'
         isValid.push(element.name)
@@ -41,12 +44,13 @@ function DataChanged(e) {
         }
     }
     if (element.name == 'gender' || element.name == 'relationship_status' || element.name == 'state' || element.name == 'city' || element.name == 'pref_loaction' || element.name == 'pref_department') {
+        console.log(element.value);
         if (element.value == '') {
-            document.getElementById(element.name + '_error').innerHTML = element.name + ' field is requred'
+            document.getElementById(`${element.name}_error`).innerHTML = `${element.name} field is requred`
             isValid.push(element.name)
         }
         else {
-            document.getElementById(element.name + '_error').innerHTML = element.name + ''
+            document.getElementById(`${element.name}_error`).innerHTML = ''
         }
     }
 
@@ -98,11 +102,12 @@ function DataChanged(e) {
         }
     }
     if (element.name == 'percentage') {
-        if (element.value < 0) {
-            document.getElementById(element.name + '_error').innerHTML = 'Percentage can\'t be less than zero'
+        if (element.value <= 0) {
+            document.getElementById(element.name + '_error').innerHTML = 'Percentage can\'t be less than or equal to  zero'
             isValid.push(element.name)
         }
         else if (element.value > 100) {
+            console.log(element.name);
             document.getElementById(element.name + '_error').innerHTML = 'Percentage can\'t be greter than 100'
             isValid.push(element.name)
         }

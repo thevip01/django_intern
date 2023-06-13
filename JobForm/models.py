@@ -72,8 +72,8 @@ class EducationDetail(models.Model):
         on_delete=models.CASCADE
     )
     board_name = models.CharField("Name of board", max_length=90)
-    passing_year = models.IntegerField("Passing Year")
     percentage = models.IntegerField("Percentages")
+    passing_year = models.IntegerField("Passing Year")
 
 
 class ExperienceDetail(models.Model):

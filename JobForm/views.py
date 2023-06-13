@@ -1,7 +1,6 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, reverse
 from django.http import JsonResponse, QueryDict
-import json
-from django.core.serializers import serialize
+from django.core.paginator import Paginator
 
 from .form import BasicForm, EducationForm, ExperienceForm, LanguageForm, TechLanugaeForm, referenceForm, preferenceForm
 from .models import cities, Language, TechLanguages, BasicDetail, EducationDetail, ExperienceDetail, KnownLanguage, KnownTechLang, referenceDetail, preferenceDetail
@@ -101,15 +100,13 @@ def ApplyForm(request):
             pref = PrefResponse.save(commit=False)
             pref.userID = uID
             PrefResponse.save()
-            return redirect('JobApp')
+            return redirect('/job/all/')
         else:
             print(PrefResponse.errors, BasicResponse.errors)
-        return HttpResponse('ERROR')
+            return HttpResponse(PrefResponse.errors, BasicResponse.errors)
 
 
 orderBy = 'id'
-limit = 2
-offset = 0
 
 
 def FormatData(fetchedData):
@@ -128,20 +125,24 @@ def FormatData(fetchedData):
 
 
 def DataGet():
-    fetchedData = BasicDetail.objects.all().order_by(orderBy)[
-        offset:offset+limit]
+    global pageNo
+    fetchedData = BasicDetail.objects.all().order_by(orderBy)
     tableData = FormatData(fetchedData)
 
     return tableData
 
 
-def showAll(request, pageno=1):
-    global offset
-    offset = limit*(pageno-1)
+limit = 3
+
+
+def showAll(request):
     tableData = DataGet()
-    count = BasicDetail.objects.all().count()
-    pages = count/limit
-    return render(request, "Grid.html", {'context': tableData, 'count': range(int(pages)+1), 'isSorted': orderBy})
+    paginator = Paginator(tableData, limit)
+    pageNo = request.GET.get('page')
+    if (pageNo == None):
+        pageNo = 1
+    pageData = paginator.get_page(pageNo)
+    return render(request, "Grid.html", {"context": pageData})
 
 
 def SortData(request, sortName):
@@ -156,16 +157,15 @@ def SortData(request, sortName):
         orderBy = 'id'
     else:
         orderBy = sortName
-    return redirect('/job/all/1')
+    return redirect('/job/all/')
 
 
 def DeleteData(request, id):
     BasicDetail.objects.filter(id=id).delete()
-    return redirect('/job/all/1')
+    return redirect('/job/all/')
 
 
 def SearchData(request, searchBy, searchVal):
-    print(searchBy, searchVal)
     if (searchBy == 'name'):
         searchData = BasicDetail.objects.filter(firstname=searchVal)
     elif searchBy == 'id':
@@ -255,7 +255,7 @@ def update(request, id):
                             print(ExperienceResponse.errors)
 
             rid = referenceDetail.objects.filter(userID=id)
-            itemLen = len(formResponese['company_name'])
+            itemLen = len(formResponese['ref_name'])
             for i in range(max(len(rid), itemLen)):
                 if (i >= itemLen and i < len(rid)):
                     referenceDetail.objects.filter(id=rid[i].id).delete()
@@ -309,7 +309,6 @@ def update(request, id):
 
             tlid = KnownTechLang.objects.filter(userID=id)
             itemLen = len(formResponese['techLanguage'])
-            print((len(tlid), itemLen))
             for i in range(max(len(tlid), itemLen)):
                 if (i >= itemLen and i < len(tlid)):
                     KnownTechLang.objects.filter(id=tlid[i].id).delete()
@@ -334,4 +333,5 @@ def update(request, id):
 
         else:
             print(PrefResponse.errors, BasicResponse.errors)
-        return HttpResponse('DONE')
+
+    return redirect('/job/all/')

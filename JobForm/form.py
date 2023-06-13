@@ -33,7 +33,7 @@ class ExperienceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'col-sm my-1 mx-2'
+            field.widget.attrs['class'] = 'col-sm my-1'
 
 
 class LanguageForm(forms.ModelForm):

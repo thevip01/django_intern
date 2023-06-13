@@ -13,7 +13,6 @@
 {% block heading %} Registered Users {% endblock %}
 {% block container %}
     <div class="container">
-          
         <div class="form-outline mb-4">
             <select name="searchBy" id="searchBy" class="col-sm form-control-lg" onchange="typecheck(this.value)">
                 <option value="id">Id</option>
@@ -21,7 +20,7 @@
                 <option value="designation">Designation</option>
             </select>
             <input type="number" class="form-control-lg col-sm" id="datatable-search-input">
-            <i class="btn btn-warning" for="datatable-search-input" onclick="search()">Search</i>
+            <i class="btn btn-warning" for="datatable-search-input" id="search-btn">Search</i>
         </div>
         <div id="searchTableDiv">
             <table class="table table-responsive table-info rounded" id="datatable" hidden>
@@ -69,71 +68,24 @@
         
         <nav class="flex-column w-100">
             <ul class="pagination pagination">
-                {% for i in count %}
-                    {% if i != 0 %}
-                        <li class="page-item" id="page{{i}}">
-                            <a class="page-link" href="{{i}}">{{i}}</a>
-                        </li>
+
+                <span style="display: flex;">
+                    {% if context.has_previous %}
+                        <a class="page-link" href="?page=1">&laquo; first</a>
+                        <a class="page-link" href="?page={{ context.previous_page_number }}">previous</a>
                     {% endif %}
-                {% endfor %}
+                    <span class="current p-2">
+                        Page {{ context.number }} of {{ context.paginator.num_pages }}
+                    </span>
+                    {% if context.has_next %}
+                        <a class="page-link" href="?page={{ context.next_page_number }}">next</a>
+                        <a class="page-link" href="?page={{ context.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
             </ul>
           </nav>
     </div>
 {% endblock %}
 {% block script %}
-    <script>
-        document.getElementById('page'+(String(document.location.href).split("/").splice(-1)[0])).classList.add('active')
-        
-        function typecheck(value) {
-            document.getElementById('searchresult').hidden = true
-            let datatable = document.getElementById('datatable')
-            datatable.hidden = true
-            oldData = datatable.getElementsByTagName('tr')
-            for(let a=1; a< oldData.length;a++){
-                oldData[a].remove()
-            }
-            if(value != 'id'){
-                document.getElementById('datatable-search-input').type = 'text'
-                return 0
-            }
-            document.getElementById('datatable-search-input').type = 'number'
-        }
-
-        async function search() {
-            searchBy = document.getElementById('searchBy').value
-            searchval = document.getElementById('datatable-search-input').value
-
-            let response = await fetch(`http://127.0.0.1:8000/job/search/${searchBy}/${searchval}`)
-            let data = await response.json()
-            let searchData = data.searchData
-            if(searchData.length > 0){
-                document.getElementById('searchresult').hidden = false
-                let datatable = document.getElementById('datatable')
-                datatable.hidden = false
-                oldData = datatable.getElementsByTagName('tr')
-                for(let a=1; a< oldData.length;a++){
-                    oldData[a].remove()
-                }
-                searchData.forEach(item => {
-                    let myNewTr = document.createElement('tr')
-                    myNewTr.className = 'table-primary'
-                    (Object.values(item)).map(i=>{
-                        let myNewTd = document.createElement('td') 
-                        myNewTd.innerHTML = i;
-                        myNewTr.appendChild(myNewTd)
-                    })
-                    datatable.appendChild(myNewTr)
-                });
-            }
-            else{
-                document.getElementById('searchresult').hidden = false
-                searchTableDiv = document.getElementById('searchTableDiv')
-                h4 = document.createElement('h4')
-                h4.innerHTML = "No Data Found"
-                h4.classList.add('w-100')
-                h4.classList.add('text-center')
-                searchTableDiv.appendChild(h4)
-            }
-        }
-    </script>
+    <script type="text/javascript" src="{% static 'js/scriptGrid.js' %}"></script>
 {% endblock %}

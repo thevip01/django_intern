@@ -1,5 +1,5 @@
 {% extends 'includes/baseFile.html' %}
-{% load static %}
+
 {% block style %}
 <style>
     .formLong label{
@@ -35,7 +35,6 @@
                         {{element}}
                     {%endif%}
                     <i class="text-danger text-center" id="{{element.name}}_error"></i>
-                    {{ element.errors }} 
                 {%endfor%}
                 </div>
             </div>
@@ -60,7 +59,7 @@
             </div>
             {% for element in form.1 %}
                 <i class="col-sm">
-                    <i class="text-danger text-center px-xxl-5" style="min-width: 1000px; margin-left: 170px;" id="{{element.name}}_error"></i>
+                    <i class="text-danger text-center" style="min-width: 866px; margin-left: 68px;" id="{{element.name}}_error"></i>
                 </i>
             {%endfor%}
             </div>
@@ -73,7 +72,7 @@
                 {%for element in form.2%}
                     <label class="col-sm mx-2" for="{{element.name}}">{{element.label}} : </label>
                     {%if element.html_name == 'from_date' or element.html_name == 'to_date' %}
-                        <input type="date" class="col-sm my-1 mx-3 " name="{{element.name}}" id="id_{{element.name}}">
+                        <input type="date" class="col-sm my-1 " name="{{element.name}}" id="id_{{element.name}}">
                     {%else%}
                         {{element}}
                     {%endif%}
@@ -82,7 +81,7 @@
             </div>
             {% for element in form.2 %}
             <i class="col-sm">
-                <i class="text-danger text-center px-xxl-5" style="min-width: 1000px; margin-left: 170px;" id="{{element.name}}_error"></i>
+                <i class="text-danger text-center px-xxl-5" style="min-width:  866px; margin-left: 68px;" id="{{element.name}}_error"></i>
             </i>
             {%endfor%}
         </div>
@@ -106,7 +105,8 @@
                     {%endfor%}
                     </div>
                 </div>
-            </div>                
+            </div>   
+            <i class="text-danger text-center mx-5" id="language_error"></i>             
         </div> 
         <div class="panel-default panel p-0" style="width: 45%;">
             <div class="panel-heading">Known Tech Language</div>
@@ -126,7 +126,8 @@
                     {%endfor%}
                     </div>
                 </div>
-            </div>                
+            </div>     
+            <i class="text-danger text-center mx-5" id="techLanguage_error"></i>             
         </div> 
     </div> {# LANGUAGES DETAIL #}
     <div class="panel panel-default">
@@ -162,212 +163,7 @@
     </div>
 </form>
 {% endblock %}
+{% load static %}
 {% block script %}
-    <script src="{% static 'js/jobForm.js' %}"></script>
-    <script>
-        document.getElementsByTagName('body')[0].addEventListener('onload', getFunction())
-        async function getFunction(){
-            id = document.getElementById('nonematter').value
-            if(id != ''){
-                let response = await fetch('http://127.0.0.1:8000/job/getData/'+id)
-                let DataSet = await response.json()
-                let Data = DataSet['Data']
-                let Languages = DataSet['Language']
-                let MultiData = DataSet['MultipleData']
-                let fields = ['BasicData','PreferenceData']
-                let fieldsMul = ['EducationData','ExperienceData','ReferenceData']
-                let langField = ['LanguageData','TechLanguageData',]
-                for(let i=0; i<Data.length; i++){
-                    Object.keys(Data[i][fields[i]]).forEach(item => {
-                        try{
-                            if(item == 'state_id'){
-                                document.getElementById('id_state').value  = Data[i][fields[i]][item]
-                            }
-                            else if(item == 'city'){
-                                getcity(Data[i][fields[i]][item])
-                                
-                            }
-                            else{
-                                document.getElementById(`id_${item}`).value = Data[i][fields[i]][item]
-                            }
-                        }
-                        catch{}
-                    });
-                }
-                
-                TechLanguageData1 =Languages[1]['TechLanguageData']
-                let techLang = document.getElementsByName('techLanguage')
-                TechLanguageData1.forEach(TechLanguageData => {   
-                    techLang.forEach(element => {
-                        if(element.value == TechLanguageData['techLanguage_id']){
-                            element.checked =true
-                            document.getElementById(TechLanguageData['techLangExpertise']+'_'+TechLanguageData['techLanguage_id']).checked = true
-                        }
-                    });
-                });
-                LanguageData1 =Languages[0]['LanguageData']
-                let lang = document.getElementsByName('language')
-
-                LanguageData1.forEach(LanguageData => {                
-                    lang.forEach(element => {
-                        if(element.value == LanguageData['language_id']){
-                            element.checked =true
-                            expertiseData = String(LanguageData['expertise']).split(',')
-                            for(i=0; i<expertiseData.length-1;i++){
-                                document.getElementById(expertiseData[i]+'_'+LanguageData['language_id']).checked = true
-                            }
-                        }
-                    });
-                });
-                let Education = MultiData[0]['EducationData']
-                for(let i=1; i<Education.length; i++){
-                    AddForm(i, 'EducationForm')
-                }
-                let AllBoard = document.getElementsByName('board_name')
-                let AllPassYear = document.getElementsByName('passing_year')
-                let percentage = document.getElementsByName('percentage')
-                for(let i=0; i<AllBoard.length; i++){
-                    AllBoard[i].value = Education[i]['board_name']
-                    AllPassYear[i].value = Education[i]['passing_year']
-                    percentage[i].value = Education[i]['percentage']
-                }
-
-                let Experience = MultiData[1]['ExperienceData']
-                for(let i=1; i<Experience.length; i++){
-                    AddForm(i, 'ExperienceForm')
-                }
-                let Allcompany = document.getElementsByName('company_name')
-                let ex_designation = document.getElementsByName('ex_designation')
-                let from_date = document.getElementsByName('from_date')
-                let to_date = document.getElementsByName('to_date')
-                for(let i=0; i<Allcompany.length; i++){
-                    Allcompany[i].value = Experience[i]['company_name']
-                    ex_designation[i].value = Experience[i]['ex_designation']
-                    from_date[i].value = Experience[i]['from_date']
-                    to_date[i].value = Experience[i]['to_date']
-                }
-
-                let Reference = MultiData[2]['ReferenceData']
-                for(let i=1; i<Reference.length; i++){
-                    AddForm(i, 'ReferenceForm')
-                }
-                let AllName = document.getElementsByName('ref_name')
-                let Conatcts = document.getElementsByName('ref_contact')
-                let Relations = document.getElementsByName('ref_relation')
-                for(let i=0; i<AllName.length; i++){
-                    AllName[i].value = Reference[i]['ref_name']
-                    Conatcts[i].value = Reference[i]['ref_contact']
-                    Relations[i].value = Reference[i]['ref_relation']
-                }
-            }
-
-        }
-    </script>
-    <script>
-        var c = document.getElementById('Languages').getElementsByTagName('input');
-        for (var i = 0; i < c.length; i++) {
-            if (c[i].type == 'checkbox' || 'radio') {
-                c[i].addEventListener('click', checkboxChecked)
-                if(location.href == 'http://127.0.0.1:8000/job/'){
-                    c[i].click();
-                    c[i].click();
-                }
-            }
-        }
-        function checkboxChecked() {
-            element = this
-            if (element.checked == true) {
-                try{
-                    document.getElementById(`Beginner_${element.value}`).disabled = false;
-                    document.getElementById(`Mediator_${element.value}`).disabled = false;
-                    document.getElementById(`Expert_${element.value}`).disabled = false;
-                }
-                catch{}
-                try{
-                    document.getElementById(`read_${element.value}`).disabled = false;
-                    document.getElementById(`write_${element.value}`).disabled = false;
-                    document.getElementById(`speak_${element.value}`).disabled = false;
-                }
-                catch{}
-            }
-            else {
-                try{
-                    document.getElementById(`Beginner_${element.value}`).disabled = true;
-                    document.getElementById(`Mediator_${element.value}`).disabled = true;
-                    document.getElementById(`Expert_${element.value}`).disabled = true;
-
-                    document.getElementById(`Beginner_${element.value}`).checked = false; 
-                    document.getElementById(`Mediator_${element.value}`).checked = false;
-                    document.getElementById(`Expert_${element.value}`).checked = false;
-                }
-                catch{}
-                try{
-                    document.getElementById(`read_${element.value}`).disabled = true;
-                    document.getElementById(`write_${element.value}`).disabled = true;
-                    document.getElementById(`speak_${element.value}`).disabled = true;
-
-
-                    document.getElementById(`read_${element.value}`).checked = false;
-                    document.getElementById(`write_${element.value}`).checked = false;
-                    document.getElementById(`speak_${element.value}`).checked = false;
-                }
-                catch{}
-            }
-        }
-        let stateElement = document.getElementById('id_state')
-        stateElement.addEventListener('change', getcity)
-        let citySelect = document.getElementById('id_city')
-
-
-        async function getcity(value1) {
-            const state = stateElement.value;
-            if (state != '') {
-                fetch(`http://127.0.0.1:8000/job/getcity/${state}`, {
-                    method: 'get'
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        let cities = data.cities;
-                        citySelect.innerHTML = '<option>---------</option>'
-                        for (let i in cities) {
-                            option = document.createElement('option')
-                            option.value = cities[i][2]
-                            option.id = cities[i][0]
-                            option.innerHTML = cities[i][2]
-                            citySelect.appendChild(option)
-                        }
-                        if(typeof(value1) !== 'object'){
-                            document.getElementById('id_city').value = value1
-                        }
-                    })
-                    
-            }
-            else {
-                citySelect.innerHTML = '<option>---------</option>'
-            }
-        }
-
-        function AddForm(btn, FormID) {
-            let btn_id = btn;
-            let myform = document.getElementById(FormID)
-            let node = myform.querySelector('.table')
-            const clone = node.cloneNode(true);
-            let Removebtn = clone.querySelector('li');
-            clone.id = `${FormID}_${Number(btn_id) + 1}`
-            Removebtn.id = Number(btn_id) + 1
-            Removebtn.innerHTML = "Remove";
-            Removebtn.setAttribute("onclick", `RemoveForm(this.id, ${FormID})`)
-            myform.appendChild(clone);
-            let input1 = clone.getElementsByTagName("input");
-            for (let i = 0; i < input1.length; i++) {
-                input1[i].value = "";
-            }
-            btn.id = Number(btn.id) + 1
-
-        }
-        function RemoveForm(btn_id, FormID) {
-            node = document.getElementById(`${FormID.id}_${btn_id}`)
-            node.remove()
-        }
-    </script>
+    <script type="text/javascript"src="{% static 'js/script.js' %}"></script>
 {% endblock %}
